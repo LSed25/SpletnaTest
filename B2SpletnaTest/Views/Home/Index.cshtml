@@ -1,0 +1,89 @@
+﻿
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<table class="table" id="tabela">
+    <thead>
+        <tr>
+            <th>Ime</th>
+            <th>Starost</th>
+        </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+</table>
+
+<h3>Dodaj nov vnos</h3>
+<form id="myForm" method="post" enctype="multipart/form-data">
+    <label for="name">Ime:</label><br>
+    <input type="text" id="name" name="name"><br>
+    <label for="age">Starost:</label><br>
+    <input type="number" id="age" name="age" min="0"><br><br>
+    <input type="button" class="reset-btn" value="Lokalno" onclick="lokalno()" />&nbsp;<input type="button" class="reset-btn" value="Na stežnik" onclick="streznik()" />
+</form>
+
+<div id="test"></div>
+
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: '@Url.Action("GetData", "Home")',
+            dataType: 'json',
+            contentType: 'application/json; charset=utf­8',
+
+            success: function (result) {
+                $.each(JSON.parse(result), function (key, value) {
+                    $('#tabela > tbody:last-child').append('<tr><td>' + value.ime + '</td><td>' + value.starost + '</td></tr>');
+                });
+
+            }
+        });
+        $(".reset-btn").click(function () {
+            $("#myForm").trigger("reset");
+        });
+    });
+
+    function streznik() {
+        var formData = new FormData();
+        formData.append("ime", $("#name").val());
+        formData.append("starost", $("#age").val());
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Streznik", "Home")',
+            data: formData,
+            contentType: 'application/x-www-form-urlencoded',
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                $("#tabela > tbody").empty();
+                $.each(JSON.parse(result), function (key, value) {
+                    $('#tabela > tbody:last-child').append('<tr><td>' + value.ime + '</td><td>' + value.starost + '</td></tr>');
+                });
+            }
+        });
+    }
+
+    function lokalno() {
+
+        var formData = new FormData();
+        formData.append("ime", $("#name").val());
+        formData.append("starost", $("#age").val());
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Lokalno", "Home")',
+            data: formData,
+            contentType: 'application/x-www-form-urlencoded',
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                result = JSON.parse(result);
+                $('#tabela > tbody:last-child').append('<tr><td>' + result.ime + '</td><td>' + result.starost + '</td></tr>');
+
+            }
+        });
+    }
+</script>
